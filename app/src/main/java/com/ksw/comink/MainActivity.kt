@@ -8,9 +8,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenResumed
-import androidx.viewpager.widget.ViewPager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.ksw.comink.item.BannerItem
+import com.ksw.comink.item.GridItem
+import com.ksw.comink.item.data.BannerItemList
+import com.ksw.comink.item.data.GridItemList
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.grid_main_recyclerview
+import kotlinx.android.synthetic.main.activity_main.tv_pageNumber
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -22,6 +29,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
 
     private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var viewModel: MainActivityViewModel
+    private lateinit var gridRecyclerViewAdapter : GridRecyclerViewAdapter
     // 멈춤, 재실행 가능하드록, 다른앱 사용하다가 다시 켰을 경우
     private var isRunning = true
 
@@ -29,23 +37,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        viewModel.setBannerItems(
-            listOf(
-                BannerItem(R.drawable.list4),
-                BannerItem(R.drawable.list5),
-                BannerItem(R.drawable.list6),
-                BannerItem(R.drawable.list7),
-                BannerItem(R.drawable.list8)
-            )
-        )
+        viewModel.setBannerItems(BannerItemList)
+        viewModel.setGridItems(GridItemList)
 
         menu.setOnClickListener(this)
         initViewPager()
         subscribeObservers()
         autoScrollViewPager()
     }
-
-
 
     private fun initViewPager() {
         viewPager.apply {
@@ -56,12 +55,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     isRunning = true
-                    tv_pageNumber.text = "${position+1}"
+                    this@apply.tv_pageNumber?.text = "${position+1}"
 
                     // 사용자가 직접 스크롤
                     viewModel.setCurrentPosition(position)
                 }
             })
+        }
+
+        grid_main_recyclerview.apply {
+            gridRecyclerViewAdapter = GridRecyclerViewAdapter()
+            layoutManager = GridLayoutManager(this@MainActivity, 4)
+
+            adapter = gridRecyclerViewAdapter
         }
     }
 
@@ -69,6 +75,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
     private fun subscribeObservers() {
         viewModel.bannerItemList.observe(this, Observer { bannerItemList ->
             viewPagerAdapter.submitList(bannerItemList)
+        })
+
+        viewModel.currentPosition.observe(this, Observer { currentPosition ->
+            viewPager.currentItem = currentPosition
+        })
+
+        viewModel.gridItemList.observe(this, Observer { gridItemList ->
+            gridRecyclerViewAdapter.submitList(gridItemList)
         })
 
     }
@@ -83,7 +97,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
         lifecycleScope.launchWhenResumed {
             whenResumed {
                 while (isRunning) {
-                    delay(1000)
+                    delay(3000)
                     viewModel.getCurrentPosition()?.let {
                         viewModel.setCurrentPosition((it.plus(1)) % 5)
                     }
