@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
  */
 class MainActivityViewModel : ViewModel() {
     private val _bannerItemList : MutableLiveData<List<BannerItem>> = MutableLiveData()
+    private val _currentPosition : MutableLiveData<Int> = MutableLiveData()
 
     val bannerItemList : LiveData<List<BannerItem>>
         get() = _bannerItemList
@@ -16,4 +17,14 @@ class MainActivityViewModel : ViewModel() {
     fun setBannerItems(list: List<BannerItem>) {
         _bannerItemList.value = list
     }
+
+    init {
+        _currentPosition.value = 0
+    }
+
+    fun setCurrentPosition(position : Int) {
+        _currentPosition.value = position
+    }
+
+    fun getCurrentPosition() = _currentPosition.value
 }
