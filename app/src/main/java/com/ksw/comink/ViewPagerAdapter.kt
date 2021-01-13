@@ -31,6 +31,7 @@ class ViewPagerAdapter(private val interaction: Interaction) : RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        // banneritemlist가 null이 아닐 때 실행하도록.(let)
         bannerItemList.let { bannerItemList ->
             bannerItemList?.get(position)?.let { (holder as BannerViewHolder).bind(it) }
         }
