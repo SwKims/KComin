@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.ksw.comink.item.BannerItem
 import com.ksw.comink.item.GridItem
+import com.ksw.comink.item.collapse
 import com.ksw.comink.item.data.BannerItemList
 import com.ksw.comink.item.data.GridItemList
+import com.ksw.comink.item.expand
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.grid_main_recyclerview
 import kotlinx.android.synthetic.main.activity_main.tv_pageNumber
@@ -39,6 +41,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         viewModel.setBannerItems(BannerItemList)
         viewModel.setGridItems(GridItemList)
+
+        tv_see_detail.setOnClickListener(this)
+        iv_arrow.setOnClickListener(this)
 
         menu.setOnClickListener(this)
         initViewPager()
@@ -123,6 +128,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, Interaction {
             when (position.id) {
                 R.id.menu -> {
 
+                }
+                R.id.tv_see_detail, R.id.iv_arrow -> {
+                    if (ll_detail.visibility == View.GONE) {
+                        ll_detail.expand(scrollView = scroll)
+                        tv_see_detail.text = "닫기"
+                        iv_arrow.setImageResource(R.drawable.ic_arrow_drop_up)
+                    } else {
+                        ll_detail.collapse()
+                        tv_see_detail.text = "자세히보기"
+                        iv_arrow.setImageResource(R.drawable.ic_arrow_drop_down_circle)
+                    }
                 }
             }
         }
